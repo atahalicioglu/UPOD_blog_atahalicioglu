@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    {% if user.is_authenticated %}
+        <title>Welcome - {{ user.username }}</title>
+    {% else %}
+        <title>Blog</title>
+    {% endif %}
+
+    <style>
+    .blog-post {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .blog-post h2 {
+      color: #007bff;
+    }
+
+    .blog-post p {
+      color: #333;
+    }
+
+      .navbar {
+    background-color: #2c3e50;
+    border-bottom: 4px solid #2980b9;
+    }
+  
+    .navbar-brand {
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 1px;
+      transition: color 0.3s ease;
+    }
+  
+    .navbar-brand:hover {
+      color: #e74c3c;
+    }
+  
+    .navbar-nav .nav-item {
+      margin-right: 15px;
+    }
+  
+    .navbar-nav .nav-link {
+      font-size: 16px;
+      color: #ffffff;
+      letter-spacing: 1px;
+      transition: color 0.3s ease;
+    }
+  
+    .navbar-nav .nav-link:hover {
+      color: #e74c3c;
+    }
+  
+    /* Custom style for the toggler icon */
+    .navbar-toggler {
+      border-color: #ffffff;
+    }
+  
+    .navbar-toggler-icon {
+      background-image: url('data:image/svg+xml;charset=utf8,%3Csvg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E');
+    }
+  
+    .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+      background-image: url('data:image/svg+xml;charset=utf8,%3Csvg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath stroke="%23e74c3c" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E');
+    }
+
+    .logout-button {
+        background-color: #ff0000;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .blog-post-image {
+      margin-left: auto; 
+      text-align: right; /* Align the image all the way to the right */
+
+    }
+    </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="{% url 'home_view' %}">Blog</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-between" id="navbarText">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'home_view' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'post' %}">Post</a>
+            </li>
+            {% endif %}
+        </ul>
+        <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Logout</button>
+          </form>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link btn btn-success text-white" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link btn btn-warning text-white" href="{% url 'register' %}">Register</a>
+          </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+  
+    <main role="main" class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+
+          {% for blog_post in blog_posts %}
+            <div class="blog-post">
+                <div>
+                  <h2>{{ blog_post.title }}</h2>
+                  <p>{{ blog_post.content }}</p>
+                  <p>Created at: {{ blog_post.created_at }}</p>
+                  {% if blog_post.created_at != blog_post.updated_at%}
+                  <p>Updated at: {{ blog_post.updated_at }}</p>
+                  {%endif%}
+                  {% if user.is_authenticated and blog_post.user == user %}
+                  <a href="{% url 'post_detail' post_slug=blog_post.post_slug %}">
+                    <button class="btn btn-success">Edit</button>
+                  </a>
+                  <a href="{% url 'delete_post' post_slug=blog_post.post_slug %}">
+                    <button class="btn btn-danger" >Delete</button>
+                  </a>
+                  {%endif%}
+                </div>
+                <div class="blog-post-image">
+                  {% if blog_post.image %}
+                    <img src="{{ blog_post.image.url }}" alt="Image" style="max-width: 200px; max-height: 200px;">
+                  {% else %}
+                    <p>No image available.</p>
+                  {% endif %}
+                </div>
+                
+            </div>
+          </div>
+          
+      </div>
+        
+    {% endfor %}
+    </main>
+
+
+    <footer class="footer mt-auto py-3 bg-light text-black fixed-bottom">
+      <div class="container d-flex justify-content-end">
+        <a href="https://www.linkedin.com/in/atahalicioglu/" class="text-dark me-4 m-1"><i class="fab fa-linkedin fa-lg"></i></a>
+        <a href="https://github.com/atahalicioglu" class="text-dark m-1"><i class="fab fa-github fa-lg"></i></a>
+    </div>
+    <div class="container text-center">
+        Made by atahalicioglu
+    </div>
+  </footer>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <!-- Font Awesome JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+  </body>
+</html>
