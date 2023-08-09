@@ -132,3 +132,7 @@
 
 </div>
 
+
+
+
+<a class="nav-link" href="{% url 'profile_view' profile_slug=profile.profile_slug %}">Profile</a>

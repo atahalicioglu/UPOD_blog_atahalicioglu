@@ -3,20 +3,19 @@ from django.shortcuts import get_object_or_404, render, redirect
 from .models import BlogPost
 from django.contrib import messages
 from slugify import slugify
+from users.models import Profile
 
-
-# Create your views here.
+# TODO: blog_post_2 yi kullan
 
 def home_view(request):
-
-    blog_posts = {'blog_posts': [post for post in BlogPost.objects.all() if not post.is_deleted]}
-
-    return render(request, 'blog/home_page.html', blog_posts)
-
-@login_required(login_url='/login/')
-def profile_view(request):
-    context = {}
-    return render(request, 'blog/profile.html',context)
+    blog_posts = BlogPost.objects.filter(is_deleted = False)
+    if request.user.is_authenticated:
+        profile_slug = get_object_or_404(Profile, user=request.user).profile_slug
+        context = {'blog_posts' : blog_posts, 'profile_slug' : profile_slug}
+        return render(request, 'blog/home_page.html', context)
+    else:
+        context = {'blog_posts' : blog_posts}
+        return render(request, 'blog/home_page.html', context)
 
 
 
@@ -34,6 +33,7 @@ def post_view(request):
 
         # Create the blog post object and save it to the database
         blog_post = BlogPost.objects.create(user=request.user, title=title, image=photo, content=content)
+        # get_or_create bak sonra
 
         # Optionally, you can display a success message to the user
         messages.success(request, 'Blog post created successfully.')
@@ -43,6 +43,7 @@ def post_view(request):
 
     context = {}
     return render(request, 'blog/post.html', context)
+
 
 @login_required(login_url='/login/')
 def post_detail(request, post_slug):
@@ -84,7 +85,7 @@ def delete_post(request, post_slug):
     post = get_object_or_404(BlogPost, post_slug= post_slug)
     post.is_deleted = True
     post.save()
-    context = {}
+    # TODO: message ekle
     return redirect('/' )
 
 
