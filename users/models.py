@@ -3,14 +3,13 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from slugify import slugify
 
-# Create your models here.
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.TextField()   # olmasi gereken charfield, 
-    surname = models.TextField()
+    name = models.CharField(max_length=50)   # olmasi gereken charfield, 
+    surname = models.CharField(max_length=50)
     image = models.ImageField(upload_to='images/user_photos', null=True)
-    profile_slug = models.SlugField(default='', max_length=40)  
+    profile_slug = models.SlugField(default='', max_length=100)  
 
     def __str__(self):
         return self.user.username

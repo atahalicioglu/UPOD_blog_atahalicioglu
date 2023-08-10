@@ -4,17 +4,15 @@ from django.urls import reverse
 from slugify import slugify
 
 
-# Create your models here.
-
 class BlogPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    content = models.TextField(blank=True, null=True)
+    title = models.CharField(max_length=110)
+    content = models.CharField(max_length=1000, blank=True, null=True)
     image = models.ImageField(upload_to='images/blog_photos', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
-    post_slug = models.SlugField(default='', max_length=40)  # new
+    post_slug = models.SlugField(default='', max_length=100)  # new
 
 
     def __str__(self):

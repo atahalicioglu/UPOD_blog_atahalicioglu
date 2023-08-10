@@ -166,36 +166,35 @@
         {% block content %}{% endblock %}
 
         {% for blog_post in blog_posts %}
-          <div class="blog-post">
-              <div>
-                <h2>{{ blog_post.title }}</h2>
-                <p>{{ blog_post.content }}</p>
-                <p>Created at: {{ blog_post.created_at }}</p>
-                {% if blog_post.created_at != blog_post.updated_at%}
-                <p>Updated at: {{ blog_post.updated_at }}</p>
-                {%endif%}
-                {% if user.is_authenticated and blog_post.user == user %}
-                <a href="{% url 'post_detail' post_slug=blog_post.post_slug %}">
-                  <button class="btn btn-success">Edit</button>
-                </a>
-                <a href="{% url 'delete_post' post_slug=blog_post.post_slug %}">
-                  <button class="btn btn-danger" >Delete</button>
-                </a>
-                {%endif%}
+            {% if not blog_post.is_deleted %}
+              <div class="blog-post">
+                  <div>
+                    <h2>{{ blog_post.title }}</h2>
+                    <p>{{ blog_post.content }}</p>
+                    <p>Created at: {{ blog_post.created_at }}</p>
+                    {% if blog_post.created_at != blog_post.updated_at%}
+                    <p>Updated at: {{ blog_post.updated_at }}</p>
+                    {%endif%}
+                    {% if user.is_authenticated and blog_post.user == user %}
+                    <a href="{% url 'post_detail' post_slug=blog_post.post_slug %}">
+                      <button class="btn btn-success">Edit</button>
+                    </a>
+                    <a href="{% url 'delete_post' post_slug=blog_post.post_slug %}">
+                      <button class="btn btn-danger" >Delete</button>
+                    </a>
+                    {%endif%}
+                  </div>
+                  <div class="blog-post-image">
+                    {% if blog_post.image %}
+                      <img src="{{ blog_post.image.url }}" alt="Image" style="max-width: 200px; max-height: 200px;">
+                    {% else %}
+                      <p>No image available.</p>
+                    {% endif %}
+                  </div>
               </div>
-              <div class="blog-post-image">
-                {% if blog_post.image %}
-                  <img src="{{ blog_post.image.url }}" alt="Image" style="max-width: 200px; max-height: 200px;">
-                {% else %}
-                  <p>No image available.</p>
-                {% endif %}
-              </div>
-              
-          </div>
+            </div>
         </div>
-        
-    </div>
-      
+      {% endif %}
   {% endfor %}
   </main>
 
